@@ -24,3 +24,45 @@ jobs:
 
       - name: Run Maven tests
         run: mvn --batch-mode --no-transfer-progress test
+
+      - name: Prepare report for GitHub Pages
+        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          mkdir -p site
+          report=$(find target/reports -type f -name '*.html' -print -quit 2>/dev/null || true)
+          if [ -n "$report" ]; then
+            cp -R "$(dirname "$report")"/. site/
+            if [ "$(basename "$report")" != "index.html" ]; then
+              cp "$report" site/index.html
+            fi
+          else
+            printf '%s\n' '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Test report unavailable</title></head><body><h1>Test report unavailable</h1><p>This run did not generate an ExtentReports HTML file. Check the GitHub Actions logs.</p></body></html>' > site/index.html
+          fi
+
+      - name: Upload report for GitHub Pages
+        if: always() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    if: always() && needs.test.result != 'cancelled' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy report
+        id: deployment
+        uses: actions/deploy-pages@v4

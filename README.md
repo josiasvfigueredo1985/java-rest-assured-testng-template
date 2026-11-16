@@ -26,6 +26,8 @@ mvn test
 
 Test reports are written under `target/reports`.
 
+The latest report from the `main` branch is also published to [GitHub Pages](https://josiasvfigueredo1985.github.io/java-rest-assured-testng-template/). The report redacts common credentials, tokens, and personal-data fields before logging them.
+
 ## Run tests in Visual Studio Code
 
 1. Install the **Extension Pack for Java** (`vscjava.vscode-java-pack`). It includes **Test Runner for Java** (`vscjava.vscode-java-test`).
