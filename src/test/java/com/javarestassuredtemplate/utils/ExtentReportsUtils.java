@@ -6,7 +6,6 @@ import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.javarestassuredtemplate.GlobalParameters;
 import com.javarestassuredtemplate.enums.AuthenticationType;
-import groovy.json.JsonException;
 import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
 import io.restassured.http.Header;
@@ -177,7 +176,7 @@ public class ExtentReportsUtils
         try {
             Object parsedJson = new JsonSlurper().parseText(value);
             return JsonOutput.toJson(redactJsonValue(parsedJson));
-        } catch (JsonException e) {
+        } catch (RuntimeException e) {
             return redactSensitiveText(value);
         }
     }
